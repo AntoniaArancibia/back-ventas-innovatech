@@ -19,6 +19,12 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Desplegar en AWS EC2 via SSH (Usando Puente Publico)
+    - name: Compilar y Desplegar en AWS EC2 via SSH
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ec2-user@3.90.234.57 "sudo docker stop api-ventas || true && sudo docker rm api-ventas || true && sudo docker run -d --name api-ventas -p 8080:8080 eclipse-temurin:17-jdk-alpine"
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ec2-user@3.90.234.57 "
+          sudo docker stop api-ventas || true && \
+          sudo docker rm api-ventas || true && \
+          cd ~/Springboot-API-REST || mkdir -p ~/Springboot-API-REST && \
+          sudo docker build -t api-ventas-img https://github.com/${{ github.repository }}.git#main && \
+          sudo docker run -d --name api-ventas -p 8080:8080 api-ventas-img
+        "
